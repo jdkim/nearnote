@@ -41,7 +41,7 @@
 </div>
 
 <div class="user-links">
-  <%= link_to "Back", :back, class: "button" %>
+  <%= link_to "Back", user_path(current_user.email), class: "button" %>
 
   <%= link_to "Delete account",
               registration_path(resource_name),
