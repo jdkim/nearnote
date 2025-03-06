@@ -1,6 +1,6 @@
 class NotesController < ApplicationController
   before_action :authenticate_user!, except: %i[index show]
-  before_action :set_note, only: %i[edit update destroy]
+  before_action :set_note, only: %i[update destroy]
 
   def index
     @note_search_form = NoteSearchForm.new(search_params)
@@ -30,7 +30,14 @@ class NotesController < ApplicationController
     end
   end
 
-  def edit; end
+  def edit
+    @note = Note.find_by!(uuid: params[:id])
+
+    unless @note.user == current_user
+      flash.now[:alert] = "You do not have permission to edit this note."
+      render template: "notes/show", status: :forbidden
+    end
+  end
 
   def update
     if @note.update(note_params)
