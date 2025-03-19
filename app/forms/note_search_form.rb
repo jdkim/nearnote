@@ -9,13 +9,16 @@ class NoteSearchForm
 
   validate :start_date_must_be_before_end_date
 
-  def search(base_scope = Note)
-    return base_scope.none if invalid? # Exec validation to receiver instance.
+  def search_ids(base_scope, key)
+    ids = Rails.cache.fetch(key, expires_in: 5.minutes) do
+      notes = base_scope.includes(:user)
+      notes = filter_by_title(notes)
+      notes = filter_by_author(notes)
+      notes = filter_by_updated_at(notes)
+      notes.pluck(:id)
+    end
 
-    notes = base_scope.includes(:user)
-    notes = filter_by_title(notes)
-    notes = filter_by_author(notes)
-    filter_by_updated_at(notes)
+    ids
   end
 
   private
