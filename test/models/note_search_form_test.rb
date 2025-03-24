@@ -10,44 +10,44 @@ class NoteSearchFormTest < ActiveSupport::TestCase
 
   test "should searchable by title" do
     form = NoteSearchForm.new(title: "aaa")
-    result = form.search
+    result = form.search_ids(Note, "dummy-cache-key")
 
-    assert_includes result, @note1
-    assert_not_includes result, @note2
+    assert_includes result, @note1.id
+    assert_not_includes result, @note2.id
   end
 
   test "should searchable by author" do
     form = NoteSearchForm.new(author: "aaa@example.com")
-    result = form.search
+    result = form.search_ids(Note, "dummy-cache-key")
 
-    assert_includes result, @note1
-    assert_not_includes result, @note2
+    assert_includes result, @note1.id
+    assert_not_includes result, @note2.id
   end
 
   test "should searchable by updated_at start date" do
     form = NoteSearchForm.new(start_date: 2.days.ago.to_date)
-    result = form.search
+    result = form.search_ids(Note, "dummy-cache-key")
 
-    assert_includes result, @note1
-    assert_not_includes result, @note2
+    assert_includes result, @note1.id
+    assert_not_includes result, @note2.id
   end
 
   test "should searchable by updated_at end date" do
     form = NoteSearchForm.new(end_date: 2.days.ago.to_date)
-    result = form.search
+    result = form.search_ids(Note, "dummy-cache-key")
 
-    assert_includes result, @note2
-    assert_not_includes result, @note1
+    assert_includes result, @note2.id
+    assert_not_includes result, @note1.id
   end
 
   test "should searchable by updated_at start and end date" do
     note3 = Note.create!(title: "ccc", updated_at: 5.day.ago, user: @user1)
     form = NoteSearchForm.new(start_date: 4.days.ago.to_date, end_date: 2.days.ago.to_date)
-    result = form.search
+    result = form.search_ids(Note, "dummy-cache-key")
 
-    assert_includes result, @note2
-    assert_not_includes result, @note1
-    assert_not_includes result, note3
+    assert_includes result, @note2.id
+    assert_not_includes result, @note1.id
+    assert_not_includes result, note3.id
   end
 
   test "should be invalid when end_date is before start_date" do
