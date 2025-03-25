@@ -2,7 +2,8 @@ class UsersController < ApplicationController
   def show
     @user = User.find_by!(email: params[:email])
     @note_search_form = NoteSearchForm.new(search_params, @user.notes)
-    note_ids = @note_search_form.search_ids(session)
+    cache_key = "#{session.id}-#{self.class.name}"
+    note_ids = @note_search_form.search_ids(cache_key)
 
     @notes = Note.where(id: note_ids)
                  .order_by(params[:sort_column], params[:sort_direction])

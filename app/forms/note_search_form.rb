@@ -16,19 +16,18 @@ class NoteSearchForm
 
   # Cache search results if validation passed.
   # if validation failed, return the last successful search result (if cache exist).
-  def search_ids(session)
+  def search_ids(cache_key)
     if valid?
-      cache_key = SecureRandom.uuid
-      session[:last_valid_note_ids_search] = cache_key
-      Rails.cache.fetch(cache_key, expires_in: 5.minutes) do
-        notes = @base_scope.includes(:user)
-        notes = filter_by_title(notes)
-        notes = filter_by_author(notes)
-        notes = filter_by_updated_at(notes)
-        notes.pluck(:id)
-      end
+      notes = @base_scope.includes(:user)
+      notes = filter_by_title(notes)
+      notes = filter_by_author(notes)
+      notes = filter_by_updated_at(notes)
+      ids = notes.pluck(:id)
+
+      Rails.cache.write(cache_key, ids, expires_in: 5.minutes)
+      ids
     else
-      Rails.cache.read(session[:last_valid_note_ids_search]) || []
+      Rails.cache.read(cache_key) || []
     end
   end
 

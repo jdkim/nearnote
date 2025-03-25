@@ -4,7 +4,8 @@ class NotesController < ApplicationController
 
   def index
     @note_search_form = NoteSearchForm.new(search_params)
-    note_ids = @note_search_form.search_ids(session)
+    cache_key = "#{session.id}-#{self.class.name}"
+    note_ids = @note_search_form.search_ids(cache_key)
 
     @notes = Note.where(id: note_ids)
                  .order_by(params[:sort_column], params[:sort_direction])
