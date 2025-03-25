@@ -3,7 +3,8 @@ class NotesController < ApplicationController
   before_action :set_note, only: %i[update destroy]
 
   def index
-    @note_search_form = NoteSearchForm.new(search_params)
+    cache_key = "#{session.id}-#{self.class.name}"
+    @note_search_form = NoteSearchForm.new(search_params, cache_key)
     @notes = @note_search_form.search
                               .order_by(params[:sort_column], params[:sort_direction])
                               .page(params[:page])

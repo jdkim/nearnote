@@ -20,7 +20,9 @@
 
   <%= form_with model: @note_search_form, scope: :q, url: user_path(@user.email), method: :get do |f| %>
     <%= render "shared/note_filter_errors", object: @note_search_form %>
-    <table class="note-table">
+
+    <%# Turn off prefetch function in table to prevent unintentional overwriting of search result cache. %>
+    <table class="note-table" data-turbo-prefetch="false">
       <thead>
         <tr>
           <th class="note-title">

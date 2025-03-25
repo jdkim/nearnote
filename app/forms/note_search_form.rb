@@ -9,13 +9,30 @@ class NoteSearchForm
 
   validate :start_date_must_be_before_end_date
 
-  def search(base_scope = Note)
-    return base_scope.none if invalid? # Exec validation to receiver instance.
+  def initialize(attributes, cache_key, base_scope = Note)
+    @cache_key = cache_key
+    @base_scope = base_scope
+    super(attributes)
+  end
 
-    notes = base_scope.includes(:user)
-    notes = filter_by_title(notes)
-    notes = filter_by_author(notes)
-    filter_by_updated_at(notes)
+  # Cache search results if validation passed.
+  # if validation failed, return the last successful search result (if cache exist).
+  def search
+    note_ids =
+      if valid?
+        notes = @base_scope.includes(:user)
+        notes = filter_by_title(notes)
+        notes = filter_by_author(notes)
+        notes = filter_by_updated_at(notes)
+        ids = notes.pluck(:id)
+
+        Rails.cache.write(@cache_key, ids, expires_in: 5.minutes)
+        ids
+      else
+        Rails.cache.read(@cache_key) || []
+      end
+
+    @base_scope.where(id: note_ids)
   end
 
   private
