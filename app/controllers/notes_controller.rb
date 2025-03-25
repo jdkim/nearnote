@@ -4,7 +4,7 @@ class NotesController < ApplicationController
 
   def index
     @note_search_form = NoteSearchForm.new(search_params)
-    note_ids = search_note_ids(@note_search_form)
+    note_ids = @note_search_form.search_ids(session)
 
     @notes = Note.where(id: note_ids)
                  .order_by(params[:sort_column], params[:sort_direction])
@@ -65,17 +65,5 @@ class NotesController < ApplicationController
 
   def search_params
     params.fetch(:q, {}).permit(:title, :author, :start_date, :end_date)
-  end
-
-  # Cache search results if validation passed.
-  # if validation failed, return the last successful search result (if cache exist).
-  def search_note_ids(form)
-    if form.valid?
-      cache_key = SecureRandom.uuid
-      session[:last_valid_note_ids_search] = cache_key
-      form.search_ids(Note, cache_key)
-    else
-      Rails.cache.read(session[:last_valid_note_ids_search]) || []
-    end
   end
 end
