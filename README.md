@@ -2,7 +2,7 @@
 ## Environment
 * ruby 3.4.2
 * Rails 8.0.1
-* SQLite3 2.5.0
+* SQLite3 2.6.0
 
 ## Installation
 ### Clone repository
